@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Socrates AI</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="images/logo.png" type="image/png">
+</head>
+<body>
+
+    <div id="welcome-screen">
+        <div class="welcome-card glass-card">
+            <img src="images/logo.png" alt="Socrates AI Logo" class="logo">
+            <h2 class="welcome-title">Welcome to Socrates AI</h2>
+            <p>Your guide to thinking deeper, not just finding answers faster.</p>
+            <button id="start-btn">Click to Explore</button>
+        </div>
+    </div>
+
+    <div class="chat-container glass-card hidden" id="chat-container">
+        <div class="header">
+            <div class="header-content">
+                <img src="images/logo.png" alt="Socrates AI Logo" class="header-logo">
+                <h1>Socrates AI</h1>
+            </div>
+            <p>The AI that teaches you how to think, not what to think.</p>
+        </div>
+        <div class="chat-box" id="chat-box">
+            </div>
+        <form class="chat-input-form" id="chat-form">
+            <input type="text" id="user-input" placeholder="What topic do you want to explore?" autocomplete="off" required>
+            <button type="submit">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="icon">
+                    <path d="M3.478 2.405a.75.75 0 00-.926.94l2.432 7.905H13.5a.75.75 0 010 1.5H4.984l-2.432 7.905a.75.75 0 00.926.94 60.519 60.519 0 0018.445-8.986.75.75 0 000-1.218A60.517 60.517 0 003.478 2.405z" />
+                </svg>                  
+            </button>
+        </form>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
