@@ -20,8 +20,8 @@
 body {
     font-family: 'Inter', sans-serif;
     margin: 0;
-    /* CORRECTED: Add padding to make space for the footer */
-    padding: 0 0 50px 0; 
+    /* CORRECTED FOR MOBILE: Reduced bottom padding to 40px */
+    padding: 0 0 40px 0; 
     height: 100vh;
     box-sizing: border-box;
     display: flex;
@@ -117,7 +117,6 @@ body {
 .chat-container {
     width: 100%;
     max-width: 800px;
-    /* CORRECTED: Use calc() to subtract body padding from height */
     height: 100%; 
     box-sizing: border-box; 
     padding: 1rem; 
@@ -227,11 +226,10 @@ body {
 /* --- MOBILE RESPONSIVE DESIGN --- */
 @media (min-width: 768px) {
     body {
-        /* CORRECTED: Re-adjust padding for desktop view */
+        /* On desktop, restore a larger bottom padding */
         padding: 2rem 2rem 50px 2rem; 
     }
     .chat-container {
-        /* CORRECTED: Let height be determined by body padding */
         height: 100%; 
         padding: 0; 
     }
@@ -249,7 +247,8 @@ footer {
     bottom: 0;
     left: 0;
     width: 100%;
-    padding: 15px 0; /* Increased padding slightly for better spacing */
+    /* CORRECTED FOR MOBILE: Reduced padding */
+    padding: 10px 0;
     background-color: rgba(11, 29, 58, 0.8);
     backdrop-filter: blur(5px);
     -webkit-backdrop-filter: blur(5px);
