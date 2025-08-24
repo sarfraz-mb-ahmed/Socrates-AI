@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
     chatForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const userMessage = userInput.value.trim();
-        if (userMessage === '') return;
+        if (userMessage === '') return;``
 
         displayMessage(userMessage, 'user');
         chatHistory.push({ role: 'user', content: userMessage });
