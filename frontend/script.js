@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const chatForm = document.getElementById('chat-form');
     const userInput = document.getElementById('user-input');
     const chatBox = document.getElementById('chat-box');
-    const backendUrl = 'http://127.0.0.1:5000/api/chat';
+    const backendUrl = 'https://socrates-ai-backend.onrender.com/api/chat';
 
     // --- State ---
     const initialAssistantMessage = "What is it you'd like to learn or understand today?";
