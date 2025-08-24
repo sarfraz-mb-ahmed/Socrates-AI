@@ -6,6 +6,8 @@
     <title>Socrates AI</title>
     <link rel="stylesheet" href="style.css">
     <link rel="icon" href="images/favicon.png" type="image/png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
 </head>
 <body>
 
@@ -28,13 +30,27 @@
         </div>
         <div class="chat-box" id="chat-box">
             </div>
-        <form class="chat-input-form" id="chat-form">
-            <input type="text" id="user-input" placeholder="What topic do you want to explore?" autocomplete="off" required>
-            <button type="submit">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="icon">
-                    <path d="M3.478 2.405a.75.75 0 00-.926.94l2.432 7.905H13.5a.75.75 0 010 1.5H4.984l-2.432 7.905a.75.75 0 00.926.94 60.519 60.519 0 0018.445-8.986.75.75 0 000-1.218A60.517 60.517 0 003.478 2.405z" />
-                </svg>                  
+
+        <div id="status-indicator" class="hidden">Listening...</div>
+        
+        <div id="stop-generating-container" class="hidden">
+            <button id="stop-generating-btn">
+                <i class="material-icons">stop_circle</i> Stop Generating
             </button>
+        </div>
+
+        <form class="chat-input-form" id="chat-form">
+            <div class="input-container">
+                <input type="text" id="user-input" placeholder="What topic do you want to explore?" autocomplete="off" required>
+            </div>
+            <div class="button-container">
+                <button type="button" id="mic-btn">
+                    <i class="fa fa-microphone"></i>
+                </button>
+                <button type="submit">
+                    <i class="material-icons">send</i>
+                </button>
+            </div>
         </form>
     </div>
 
