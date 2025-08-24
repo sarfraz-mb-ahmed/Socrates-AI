@@ -1,63 +1,127 @@
+# main.py
+
+import os
+import logging
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-import os
-import google.generativeai as genai
+from groq import Groq, APIStatusError
 from dotenv import load_dotenv
 
+# --- Basic Configuration ---
+
+# Load environment variables from .env file
 load_dotenv()
 
+# Set up basic logging to see errors in your console or log files
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+# --- Flask App Initialization ---
+
 app = Flask(__name__)
-CORS(app)
+CORS(app, resources={r"/api/*": {"origins": "*"}}) # Allow all origins for the /api/ route
+
+# --- Groq API Client Initialization ---
 
 try:
-    genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
+    # Initialize the Groq client with the API key from the environment
+    groq_client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+    logging.info("Groq client initialized successfully.")
 except Exception as e:
-    print(f"Error: Could not configure Gemini API. Check your GOOGLE_API_KEY. Details: {e}")
+    # This will stop the app if the API key is missing or invalid on startup
+    logging.critical(f"FATAL: Could not configure Groq client. Check GROQ_API_KEY. Error: {e}")
+    # In a real production app, you might exit or handle this more gracefully
+    # For now, we'll log the critical error. The app will fail on the first API call.
+    groq_client = None
+
+# --- The Perfected Socratic Prompt ---
 
 SOCRATIC_PROMPT = """
-You are Socrates AI, a tutor who uses the Socratic method. Your goal is to help the user understand a concept deeply by asking guiding questions.
-Follow these rules strictly:
-1.  **Never give a direct answer.**
-2.  Ask one open-ended, thought-provoking question at a time.
-3.  If the user is wrong, gently guide them toward the correct path with a question.
-4.  Keep your responses concise and in a conversational tone.
+You are Socrates AI, a tutor who uses the Socratic method. Your goal is to help the user understand a concept deeply by asking guiding questions. Your entire persona is built on guiding, not telling.
+
+Follow these core principles strictly:
+1.  **Never, under any circumstances, give a direct answer, definition, summary, or fact.** Your purpose is to elicit knowledge from the user, not provide it yourself.
+2.  Ask one open-ended, thought-provoking question at a time. The question should build directly upon the user's last statement.
+3.  If the user is incorrect, gently guide them toward the correct path with a question that helps them spot their own error. For example, if a user says 'plants get food from the soil,' you might ask, 'What role does sunlight play in that process?'
+4.  Keep your responses concise and maintain a patient, encouraging, and conversational tone.
+
+**Handling difficult situations:**
+* **If the user directly asks for the answer:** Do not provide it. Instead, gently deflect and turn it back into a question. For example, say 'That's an excellent question to explore. To start, what part of it do you find most confusing?'
+* **If the user says 'I don't know':** Do not give up. Reframe the question in a simpler way or use an analogy. For example, ask 'Let's try a different angle. What happens to a plant if you leave it in a dark room?'
+* **Starting the conversation:** When the user first enters a topic, begin with a broad, inviting question. For example, if the topic is 'photosynthesis,' start with 'An excellent subject to delve into. To begin, what are your initial thoughts on how a tiny seed grows into a giant tree?'
 """
+
+# --- API Endpoint ---
 
 @app.route('/api/chat', methods=['POST'])
 def chat():
-    data = request.json
+    # 1. Input Validation
+    if not groq_client:
+        logging.error("Groq client is not available.")
+        return jsonify({"error": "AI service is not configured correctly."}), 503 # Service Unavailable
+
+    if not request.is_json:
+        return jsonify({"error": "Invalid request: Content-Type must be application/json"}), 415
+
+    data = request.get_json()
     user_prompt = data.get('prompt')
-    history_data = data.get('history', [])
-    
-    if not user_prompt:
-        return jsonify({"error": "No prompt was provided"}), 400
+    history = data.get('history', [])
 
+    if not user_prompt or not isinstance(user_prompt, str):
+        return jsonify({"error": "Invalid request: 'prompt' must be a non-empty string."}), 400
+    if not isinstance(history, list):
+        return jsonify({"error": "Invalid request: 'history' must be a list."}), 400
+
+    # 2. Prepare Messages for LLM
+    messages = [
+        {"role": "system", "content": SOCRATIC_PROMPT},
+        *history,
+        {"role": "user", "content": user_prompt}
+    ]
+
+    # 3. Stream Response from Groq
     try:
-        model = genai.GenerativeModel('gemini-1.5-flash', system_instruction=SOCRATIC_PROMPT)
-
-        formatted_history = []
-        for msg in history_data:
-            role = 'user' if msg['role'] == 'user' else 'model'
-            formatted_history.append({'role': role, 'parts': [msg['content']]})
-
-        chat_session = model.start_chat(history=formatted_history)
-        response_stream = chat_session.send_message(user_prompt, stream=True)
+        response_stream = groq_client.chat.completions.create(
+            model="llama3-70b-8192",
+            messages=messages,
+            temperature=0.7,
+            max_tokens=1024,
+            stream=True,
+        )
         
         def generate():
             for chunk in response_stream:
-                yield chunk.text
-
+                content = chunk.choices[0].delta.content
+                if content:
+                    yield content
+        
+        # Return the streaming response
         return app.response_class(generate(), mimetype='text/plain')
 
+    except APIStatusError as e:
+        # Handle specific Groq API errors (like rate limits, authentication)
+        logging.error(f"Groq API Error: {e.status_code} - {e.message}")
+        if e.status_code == 429:
+            return jsonify({"error": "API rate limit exceeded. Please try again later."}), 429
+        return jsonify({"error": f"An API error occurred: {e.message}"}), e.status_code
+    
     except Exception as e:
-        error_text = str(e)
-        print(f"Error during API call: {error_text}")
+        # Handle other unexpected errors (network issues, etc.)
+        logging.error(f"An unexpected error occurred: {e}")
+        return jsonify({"error": "An unexpected server error occurred."}), 500
 
-        # Check if the error is a quota/rate limit error (429)
-        if '429' in error_text and 'quota' in error_text.lower():
-            return jsonify({"error": "API quota exceeded"}), 429
-        else:
-            return jsonify({"error": "Failed to get response from AI"}), 500
+# --- Standard Error Handlers ---
+
+@app.errorhandler(404)
+def not_found(error):
+    return jsonify({"error": "Not Found: The requested URL was not found on the server."}), 404
+
+@app.errorhandler(405)
+def method_not_allowed(error):
+    return jsonify({"error": "Method Not Allowed: The method is not allowed for the requested URL."}), 405
+
+# --- Run the App ---
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    # Use '0.0.0.0' to make the server accessible on your local network
+    # Render will use its own web server (like Gunicorn) and won't run this block directly
+    app.run(host='0.0.0.0', port=5000, debug=True)
