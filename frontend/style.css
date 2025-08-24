@@ -20,7 +20,7 @@
 body {
     font-family: 'Inter', sans-serif;
     margin: 0;
-    padding: 1rem; /* Default padding for mobile */
+    padding: 0; /* UPDATED: Removed padding for mobile-first layout */
     height: 100vh;
     box-sizing: border-box;
     display: flex;
@@ -116,7 +116,9 @@ body {
 .chat-container {
     width: 100%;
     max-width: 800px;
-    height: 100%; /* Full height for mobile first */
+    height: 100vh; /* UPDATED: Use 100vh for mobile */
+    box-sizing: border-box; /* UPDATED: Include padding in height */
+    padding: 1rem; /* UPDATED: Add padding here for mobile */
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -181,7 +183,6 @@ body {
     background: rgba(0,0,0,0.3);
     border-radius: 12px;
     padding: 2px 4px;
-   
     opacity: 0; 
     visibility: hidden;
     transition: opacity 0.2s ease-in-out, visibility 0.2s ease-in-out;
@@ -226,10 +227,11 @@ body {
 /* --- MOBILE RESPONSIVE DESIGN --- */
 @media (min-width: 768px) {
     body {
-        padding: 2rem;
+        padding: 2rem; /* Restore padding on desktop */
     }
     .chat-container {
-        height: 90vh;
+        height: 90vh; /* Set back to 90vh on desktop */
+        padding: 0; /* Remove padding on desktop */
     }
     .welcome-card {
         padding: 3rem 4rem;

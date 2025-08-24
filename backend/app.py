@@ -12,13 +12,13 @@ from dotenv import load_dotenv
 # Load environment variables from .env file
 load_dotenv()
 
-# Set up basic logging to see errors in your console or log files
+# Set up basic logging to see errors in console or log files
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 # --- Flask App Initialization ---
 
 app = Flask(__name__)
-CORS(app, resources={r"/api/*": {"origins": "*"}}) # Allow all origins for the /api/ route
+CORS(app, resources={r"/api/*": {"origins": "*"}}) 
 
 # --- Groq API Client Initialization ---
 
@@ -29,11 +29,9 @@ try:
 except Exception as e:
     # This will stop the app if the API key is missing or invalid on startup
     logging.critical(f"FATAL: Could not configure Groq client. Check GROQ_API_KEY. Error: {e}")
-    # In a real production app, you might exit or handle this more gracefully
-    # For now, we'll log the critical error. The app will fail on the first API call.
+ 
     groq_client = None
 
-# --- The Perfected Socratic Prompt ---
 
 SOCRATIC_PROMPT = """
 You are Socrates AI, a tutor who uses the Socratic method. Your goal is to help the user understand a concept deeply by asking guiding questions. Your entire persona is built on guiding, not telling.
@@ -105,7 +103,7 @@ def chat():
         return jsonify({"error": f"An API error occurred: {e.message}"}), e.status_code
     
     except Exception as e:
-        # Handle other unexpected errors (network issues, etc.)
+        # Handle other unexpected errors (network issues....)
         logging.error(f"An unexpected error occurred: {e}")
         return jsonify({"error": "An unexpected server error occurred."}), 500
 
@@ -119,9 +117,6 @@ def not_found(error):
 def method_not_allowed(error):
     return jsonify({"error": "Method Not Allowed: The method is not allowed for the requested URL."}), 405
 
-# --- Run the App ---
 
 if __name__ == '__main__':
-    # Use '0.0.0.0' to make the server accessible on your local network
-    # Render will use its own web server (like Gunicorn) and won't run this block directly
     app.run(host='0.0.0.0', port=5000, debug=True)
