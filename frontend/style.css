@@ -20,7 +20,8 @@
 body {
     font-family: 'Inter', sans-serif;
     margin: 0;
-    padding: 0; /* UPDATED: Removed padding for mobile-first layout */
+    /* CORRECTED: Add padding to make space for the footer */
+    padding: 0 0 50px 0; 
     height: 100vh;
     box-sizing: border-box;
     display: flex;
@@ -116,9 +117,10 @@ body {
 .chat-container {
     width: 100%;
     max-width: 800px;
-    height: 100vh; /* UPDATED: Use 100vh for mobile */
-    box-sizing: border-box; /* UPDATED: Include padding in height */
-    padding: 1rem; /* UPDATED: Add padding here for mobile */
+    /* CORRECTED: Use calc() to subtract body padding from height */
+    height: 100%; 
+    box-sizing: border-box; 
+    padding: 1rem; 
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -165,8 +167,6 @@ body {
 .button-container button:hover { transform: scale(1.2); }
 .button-container .fa, .button-container .material-icons { font-size: 24px; vertical-align: middle; }
 
-/* --- NEW FEATURE STYLES --- */
-
 /* Stop Generating Button */
 #stop-generating-container { text-align: center; padding-bottom: 0.5rem; }
 #stop-generating-btn { background: var(--primary-royal-blue); color: var(--text-off-white); border: 1px solid var(--glass-border); border-radius: 8px; padding: 0.5rem 1rem; cursor: pointer; display: inline-flex; align-items: center; gap: 0.5rem; }
@@ -189,7 +189,7 @@ body {
 }
 
 .assistant-message:hover .message-actions {
-    opacity: 1; /* Show on hover */
+    opacity: 1; 
     visibility: visible;
 }
 
@@ -227,11 +227,13 @@ body {
 /* --- MOBILE RESPONSIVE DESIGN --- */
 @media (min-width: 768px) {
     body {
-        padding: 2rem; /* Restore padding on desktop */
+        /* CORRECTED: Re-adjust padding for desktop view */
+        padding: 2rem 2rem 50px 2rem; 
     }
     .chat-container {
-        height: 90vh; /* Set back to 90vh on desktop */
-        padding: 0; /* Remove padding on desktop */
+        /* CORRECTED: Let height be determined by body padding */
+        height: 100%; 
+        padding: 0; 
     }
     .welcome-card {
         padding: 3rem 4rem;
@@ -239,4 +241,38 @@ body {
     .welcome-title {
         font-size: 2.25rem;
     }
+}
+
+/* --- Footer Credit Styles --- */
+footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 15px 0; /* Increased padding slightly for better spacing */
+    background-color: rgba(11, 29, 58, 0.8);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    color: var(--neutral-soft-gray);
+    text-align: center;
+    font-size: 0.85em;
+    z-index: 1000;
+    border-top: 1px solid var(--glass-border);
+}
+
+footer p {
+    margin: 0;
+    padding: 0;
+}
+
+footer a {
+    color: var(--cta-gold);
+    font-weight: 500;
+    text-decoration: none;
+    transition: color 0.2s ease-in-out;
+}
+
+footer a:hover {
+    text-decoration: underline;
+    color: var(--cta-hover-gold);
 }
